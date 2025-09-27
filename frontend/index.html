@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMatch - Movie Recommendation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0e1fa3;
+            --secondary-color: #3949ab;
+            --accent-color: #ff4081;
+            --light-color: #ffffff;
+            --dark-color: #212121;
+            --text-color: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: #fff;
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(26, 35, 126, 0.9), rgba(57, 73, 171, 0.8)), url('https://picsum.photos/seed/cinema/1920/1080.jpg') no-repeat center center/cover;
+            color: rgb(255, 255, 255);
+            text-align: center;
+            padding: 0 5%;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.2s;
+            animation-fill-mode: both;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: var(--transition);
+            animation: fadeInUp 1s ease 0.4s;
+            animation-fill-mode: both;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 64, 129, 0.3);
+        }
+
+        /* Section Styling */
+        section {
+            padding: 5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            background-color: var(--accent-color);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Genres Section */
+        .genres {
+            background-color: var(--light-color);
+        }
+
+        .genres-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .genre {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .genre:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .genre.active {
+            background-color: var(--accent-color);
+        }
+
+        /* Recommendation Engine */
+        .recommendation-engine {
+            background-color: var(--light-color);
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-btn {
+            background-color: white;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .movie-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 1rem;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .movie-genre {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .movie-rating i {
+            color: #ffc107;
+            margin-right: 0.3rem;
+        }
+
+        /* Contact Section */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .contact-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .contact-info p {
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .contact-item i {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-right: 1rem;
+            width: 20px;
+        }
+
+        .contact-form {
+            background-color: var(--light-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(57, 73, 171, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 5%;
+        }
+
+        .social-links {
+            margin-bottom: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                height: 90vh;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.pagination button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.pagination button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+/* Modal styles */
+.modal {
+    display: none; /* hidden by default */
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+}
+
+.modal-body-wrapper {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.modal-left img {
+    max-width: 250px;
+    border-radius: 10px;
+}
+
+.modal-right {
+    flex: 1;
+}
+
+.cast-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cast-card {
+    text-align: center;
+    width: 100px;
+}
+
+.cast-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+/* ================= WATCHLIST ================= */
+.watchlist {
+    background-color: var(--light-color);
+}
+
+#watchlistGrid .movie-card {
+    position: relative;
+}
+
+.remove-watchlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+}
+/* ---------- Splash screen (replace previous splash CSS) ---------- */
+body.noscroll { overflow: hidden; } /* prevent scroll while splash shown */
+
+#splash{
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0e1fa3 0%, #2b4bd8 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+  color: white;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reel (SVG) */
+.reel{
+  width: 120px;
+  height: 120px;
+  margin-bottom: 12px;
+  animation: spin 1.6s linear infinite;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.25));
+}
+
+/* Popcorn emoji */
+.popcorn{
+  font-size: 2.4rem;
+  margin-bottom: 14px;
+  animation: pop 0.9s ease-in-out infinite alternate;
+  transform-origin: center;
+  text-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Title */
+.splash-title{
+  font-size: 1.9rem;
+  letter-spacing: 2px;
+  margin-top: 6px;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: fadeInUp 0.6s ease 0.45s forwards;
+}
+
+/* Hidden state */
+#splash.hidden{
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+/* Keyframes */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pop {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-16px) scale(1.08); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Make sure the rest of the page content isn't visible while splash is up */
+body.show-content .hero,
+body.show-content header,
+body.show-content section,
+body.show-content footer {
+  /* nothing — this class indicates splash was hidden; keep for compatibility if used */
+}
+    </style>
+</head>
+<body>
+<div id="splash" aria-hidden="true">
+  <!-- spinning film reel (SVG) -->
+  <svg class="reel" viewBox="0 0 64 64" width="120" height="120" aria-hidden="true" focusable="false">
+    <circle cx="32" cy="32" r="28" fill="none" stroke="white" stroke-width="4"/>
+    <circle cx="20" cy="20" r="3" fill="white"/>
+    <circle cx="44" cy="20" r="3" fill="white"/>
+    <circle cx="20" cy="44" r="3" fill="white"/>
+    <circle cx="44" cy="44" r="3" fill="white"/>
+  </svg>
+
+  <!-- popcorn emoji -->
+  <div class="popcorn" aria-hidden="true">🍿</div>
+
+  <h1 class="splash-title">CineMatch</h1>
+</div>
+    <header>
+        <nav>
+            <a href="#" class="logo">
+                <i class="fas fa-film"></i>
+                CineMatch
+         </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#genres">Genres</a></li>
+                <li><a href="#recommendation-engine">Recommendation Engine</a></li>
+                <li><a href="#contact">Contact</a></li>
+                  <li><a href="/logout">Logout</a></li>   <!-- ✅ ADDED -->
+            </ul>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>CineMatch: Your Personal Movie Recommendation System</h1>
+            <p>Discover your next favorite movie based on your preferred genres. Our intelligent system analyzes your preferences to suggest films you'll love.</p>
+            <a href="#recommendation-engine" class="btn">Explore Recommendations</a>
+        </div>
+    </section>
+
+    <section id="genres" class="genres">
+        <h2 class="section-title">Movie Genres</h2>
+        <div class="genres-container">
+            <div class="genre active" data-genre="action">Action</div>
+            <div class="genre" data-genre="adventure">Adventure</div>
+            <div class="genre" data-genre="comedy">Comedy</div>
+            <div class="genre" data-genre="drama">Drama</div>
+            <div class="genre" data-genre="fantasy">Fantasy</div>
+            <div class="genre" data-genre="horror">Horror</div>
+            <div class="genre" data-genre="mystery">Mystery</div>
+            <div class="genre" data-genre="romance">Romance</div>
+            <div class="genre" data-genre="sci-fi">Sci-Fi</div>
+            <div class="genre" data-genre="thriller">Thriller</div>
+            <div class="genre" data-genre="animation">Animation</div>
+            <div class="genre" data-genre="documentary">Documentary</div>
+        </div>
+    </section>
+
+    <section id="recommendation-engine" class="recommendation-engine">
+        <h2 class="section-title">Recommendation Engine</h2>
+        <div class="filter-container">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Trending</button>
+            <button class="filter-btn">New Releases</button>
+            <button class="filter-btn">Top Rated</button>
+        </div>
+        <div class="movies-grid">
+            </div>
+            <div class="pagination">
+    <button id="prevPage" disabled>Prev</button>
+    <span id="pageNumber">Page 1</span>
+    <button id="nextPage">Next</button>
+</div>
+    </section>
+    <section id="watchlist-section" class="watchlist">
+    <h2 class="section-title">My Watchlist</h2>
+    <div id="watchlistGrid" class="movies-grid">
+        <p style="text-align:center;color:#666;">Your watchlist is empty.</p>
+    </div>
+</section>
+    <section id="contact" class="contact">
+        <h2 class="section-title">Get In Touch</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Contact Information</h3>
+                <p>Have questions about CineMatch or want to provide feedback? We'd love to hear from you!</p>
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>contact@cinematch.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>123 Movie Lane, Cinema City, CC 10001</span>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+        <p>&copy; 2025 CineMatch. All rights reserved.</p>
+    </footer>
+
+    <div id="movieModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="modalBody">
+                </div>
+        </div>
+    </div>
+    <script>
+/* splash auto-hide: replace previous load handler with this block */
+(function () {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+
+  // prevent scrolling while splash is visible
+  document.body.classList.add('noscroll');
+
+  // click to dismiss early
+  splash.addEventListener('click', () => hideSplash());
+
+  // hide after page load + small delay
+  window.addEventListener('load', () => {
+    // tweak durations here: min 900ms, default 2000ms
+    const delay = 2000;
+    setTimeout(hideSplash, delay);
+  });
+
+  // hide function
+  function hideSplash() {
+    if (!splash || splash.classList.contains('hidden')) return;
+    splash.classList.add('hidden');
+    document.body.classList.remove('noscroll');
+    // remove from DOM after transition to keep things clean (600ms matches CSS)
+    setTimeout(() => {
+      if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+    }, 700);
+  }
+})();
+    const moviesGrid = document.querySelector('.movies-grid');
+    const genreElements = document.querySelectorAll('.genre');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    let currentPage = 1;
+     let currentEndpoint = '/recommendations/action';
+    let isLoading = false; // ✅ added
+
+async function fetchMovies(endpoint, page = 1) {
+    if (isLoading) return; // ✅ prevent double calls
+    isLoading = true;
+
+    moviesGrid.innerHTML = '<p style="text-align:center;">Loading movies...</p>';
+    try {
+        const response = await fetch(`http://127.0.0.1:5000${endpoint}?page=${page}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const movies = await response.json();
+        if (!movies.length) {
+            moviesGrid.innerHTML = '<p style="text-align:center;">No movies found.</p>';
+            return;
+        }
+        displayMovies(movies);
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        moviesGrid.innerHTML = '<p style="text-align:center;color:red;">Failed to load movies. Please check the server or API key.</p>';
+    } finally {
+        isLoading = false; // ✅ unlock request
+    }
+}
+
+function displayMovies(movies) {
+    moviesGrid.innerHTML = '';
+    movies.forEach(movie => {
+        const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+        const movieCard = document.createElement('div');
+            movieCard.className = 'movie-card';
+            movieCard.dataset.movieId = movie.id;
+            movieCard.innerHTML = `
+                <img src="${poster}" alt="${movie.title}" class="movie-poster">
+                <div class="movie-info">
+                    <h3 class="movie-title">${movie.title}</h3>
+                    <div class="movie-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
+                    </div>
+                </div>
+            `;
+            moviesGrid.appendChild(movieCard);
+        });
+    }
+
+    genreElements.forEach(genreEl => {
+        genreEl.addEventListener('click', () => {
+            genreElements.forEach(el => el.classList.remove('active'));
+            genreEl.classList.add('active');
+            const genreName = genreEl.textContent.trim().toLowerCase();
+            currentPage = 1;
+            currentEndpoint = `/recommendations/${genreName}`;
+            fetchMovies(currentEndpoint, currentPage);
+            updatePagination();
+        });
+    });
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.textContent.trim();
+
+            if (filter === 'Trending') {
+                currentPage = 1;
+                currentEndpoint = '/trending';
+            } else if (filter === 'New Releases') {
+                currentPage = 1;
+                currentEndpoint = '/new-releases';
+            } else if (filter === 'Top Rated') {
+                currentPage = 1;
+                currentEndpoint = '/top-rated';
+            } else {
+                currentPage = 1;
+                currentEndpoint = '/recommendations/action';
+            }
+
+            fetchMovies(currentEndpoint, currentPage);
+            updatePagination();
+        });
+    });
+
+  // Modal for details with cast + trailer
+const modal = document.getElementById('movieModal');
+const modalBody = document.getElementById('modalBody');
+const closeButton = document.querySelector('.close-button');
+
+moviesGrid.addEventListener('click', async (e) => {
+    const movieCard = e.target.closest('.movie-card');
+    if (!movieCard) return;
+
+    const movieId = movieCard.dataset.movieId;
+    modalBody.innerHTML = '<p>Loading details...</p>';
+    modal.style.display = 'flex';
+
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/movie/${movieId}`);
+        const movieDetails = await response.json();
+
+        if (movieDetails.error) {
+            modalBody.innerHTML = `<p style="color:red;">${movieDetails.error}</p>`;
+            return;
+        }
+
+        const castHTML = movieDetails.cast && movieDetails.cast.length
+            ? movieDetails.cast.map(c => `
+                <div class="cast-card">
+                    <img src="${c.profile_path 
+                        ? 'https://image.tmdb.org/t/p/w185' + c.profile_path 
+                        : 'https://via.placeholder.com/80'}" 
+                        alt="${c.name}">
+                    <p>${c.name}</p>
+                    <small>${c.character}</small>
+                </div>
+            `).join('')
+            : '<p>No cast information available.</p>';
+
+        modalBody.innerHTML = `
+            <div class="modal-body-wrapper">
+                <div class="modal-left">
+                    <img src="https://image.tmdb.org/t/p/w500${movieDetails.poster_path}" 
+                         alt="${movieDetails.title}">
+                </div>
+                <div class="modal-right">
+                    <h2>${movieDetails.title}</h2>
+                    <p><strong>Overview:</strong> ${movieDetails.overview || "No overview"}</p>
+                    <p><strong>Release Date:</strong> ${movieDetails.release_date || "N/A"}</p>
+                    <p><strong>Runtime:</strong> ${movieDetails.runtime || "N/A"} minutes</p>
+                    <p><strong>Rating:</strong> ${movieDetails.vote_average ? movieDetails.vote_average.toFixed(1) : "N/A"}/10</p>
+                    <p><strong>Genres:</strong> ${movieDetails.genres.map(g => g.name).join(', ')}</p>
+
+                    <button id="watchTrailerBtn" 
+                            style="margin-top:1rem; padding:0.6rem 1.2rem; background:#ff0000; color:white; border:none; border-radius:5px; cursor:pointer;">
+                        ▶ Watch Trailer
+                    </button>
+                    <button id="watchlistBtn" 
+        style="margin-top:1rem; padding:0.6rem 1.2rem; background:#0e1fa3; color:white; border:none; border-radius:5px; cursor:pointer;">
+    ➕ Add to Watchlist
+</button>
+                    <h3>Top Cast:</h3>
+                    <div class="cast-container">
+                        ${castHTML}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 🎬 Trailer button event listener
+        const trailerBtn = document.getElementById("watchTrailerBtn");
+        if (trailerBtn) {
+            trailerBtn.addEventListener("click", async () => {
+                try {
+                    const trailerRes = await fetch(`http://127.0.0.1:5000/movie/${movieId}/trailer`);
+                    const trailerData = await trailerRes.json();
+                    if (trailerData.youtube_url) {
+                        window.open(trailerData.youtube_url, "_blank");
+                    } else {
+                        alert("Trailer not available for this movie.");
+                    }
+                } catch (err) {
+                    console.error("Trailer fetch error:", err);
+                    alert("Failed to load trailer.");
+                }
+            });
+        }
+        // 🎬 Watchlist button
+const watchlistBtn = document.getElementById("watchlistBtn");
+if (watchlistBtn) {
+    // First, check if movie is already in watchlist
+    try {
+        const res = await fetch("http://127.0.0.1:5000/watchlist");
+        const ids = await res.json();
+        if (ids.includes(Number(movieId))) {
+            watchlistBtn.textContent = "✅ Added";
+            watchlistBtn.disabled = true;
+        }
+    } catch (err) {
+        console.error("Watchlist check failed:", err);
+    }
+
+    // Handle add to watchlist
+    watchlistBtn.addEventListener("click", async () => {
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/watchlist/${movieId}`, {
+                method: "POST"
+            });
+            const data = await res.json();
+            watchlistBtn.textContent = "✅ Added"; // change text
+            watchlistBtn.disabled = true; // disable button
+            loadWatchlist(); // refresh the section
+        } catch (err) {
+            console.error("Error adding to watchlist:", err);
+        }
+    });
+}
+    } catch (error) {
+        console.error("Modal fetch error:", error);
+        modalBody.innerHTML = '<p style="color:red;">Failed to load movie details.</p>';
+    }
+});
+
+    closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Load default movies
+    fetchMovies(currentEndpoint, currentPage);
+    updatePagination();
+
+    // --- Pagination controls ---
+    function updatePagination() {
+        document.getElementById('pageNumber').textContent = `Page ${currentPage}`;
+        document.getElementById('prevPage').disabled = currentPage === 1;
+    }
+
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchMovies(currentEndpoint, currentPage);
+            updatePagination();
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+        currentPage++;
+        fetchMovies(currentEndpoint, currentPage);
+        updatePagination();
+    });
+    async function loadWatchlist() {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/watchlist");
+        const ids = await res.json();
+
+        const grid = document.getElementById("watchlistGrid");
+        grid.innerHTML = "";
+
+        if (!ids.length) {
+            grid.innerHTML = '<p style="text-align:center;color:#666;">Your watchlist is empty.</p>';
+            return;
+        }
+
+        for (const id of ids) {
+            const movieRes = await fetch(`http://127.0.0.1:5000/movie/${id}`);
+            const movie = await movieRes.json();
+
+            const poster = movie.poster_path
+                ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                : "https://via.placeholder.com/200x300?text=No+Image";
+
+            const card = document.createElement("div");
+            card.className = "movie-card";
+            card.dataset.movieId = movie.id;
+            card.innerHTML = `
+                <img src="${poster}" alt="${movie.title}" class="movie-poster">
+                <div class="movie-info">
+                    <h3 class="movie-title">${movie.title}</h3>
+                    <div class="movie-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}</span>
+                    </div>
+                </div>
+                <button class="remove-watchlist-btn">✖</button>
+            `;
+
+            // Remove from watchlist
+            card.querySelector(".remove-watchlist-btn").addEventListener("click", async (e) => {
+                e.stopPropagation(); // don’t trigger modal
+                await fetch(`http://127.0.0.1:5000/watchlist/${movie.id}`, { method: "DELETE" });
+                loadWatchlist(); // refresh grid
+            });
+
+            grid.appendChild(card);
+        }
+    } catch (err) {
+        console.error("Error loading watchlist:", err);
+    }
+}
+// Load watchlist on page load
+loadWatchlist();
+</script>
+</body>
+</html>
